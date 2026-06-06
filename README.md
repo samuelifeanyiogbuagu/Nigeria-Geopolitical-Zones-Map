@@ -1,7 +1,4 @@
-# ============================================================
 # NIGERIA GEOPOLITICAL ZONES MAP
-# ============================================================
-
 # Install packages (run once)
 # install.packages(c("sf", "dplyr", "ggplot2"))
 
@@ -10,23 +7,14 @@ library(sf)
 library(dplyr)
 library(ggplot2)
 
-# ============================================================
 # STEP 1: READ STATE SHAPEFILE
-# ============================================================
-
 states <- st_read("NGA_adm1.shp")
 
-# ============================================================
 # STEP 2: REMOVE NON-STATE FEATURE
-# ============================================================
-
 states <- states %>%
   filter(NAME_1 != "Water body")
 
-# ============================================================
 # STEP 3: CREATE GEOPOLITICAL ZONE LOOKUP TABLE
-# ============================================================
-
 zone_lookup <- data.frame(
   NAME_1 = c(
     
@@ -90,43 +78,21 @@ zone_lookup <- data.frame(
   )
 )
 
-# ============================================================
 # STEP 4: JOIN STATES TO GEOPOLITICAL ZONES
-# ============================================================
-
 states_zone <- states %>%
   left_join(zone_lookup, by = "NAME_1")
-
-# ============================================================
+  
 # STEP 5: CHECK FOR UNMATCHED STATES
-# ============================================================
-
 states_zone %>%
   filter(is.na(zone)) %>%
   select(NAME_1)
 
-# Should return 0 rows
-
-# ============================================================
 # STEP 6: DISSOLVE STATES INTO GEOPOLITICAL ZONES
-# ============================================================
-
 zones <- states_zone %>%
   group_by(zone) %>%
   summarise()
 
-# ============================================================
-# STEP 7: VERIFY OUTPUT
-# ============================================================
-
-print(nrow(zones))      # Should be 6
-
-print(zones$zone)
-
-# ============================================================
 # STEP 8: GENERATE GEOPOLITICAL MAP
-# ============================================================
-
 zone_map <- ggplot(zones) +
   
   geom_sf(
@@ -169,15 +135,3 @@ zone_map <- ggplot(zones) +
 
 # Display map
 zone_map
-
-# ============================================================
-# STEP 9: SAVE MAP
-# ============================================================
-
-ggsave(
-  filename = "Nigeria_Geopolitical_Zones_Map.png",
-  plot = zone_map,
-  width = 10,
-  height = 8,
-  dpi = 300
-)
